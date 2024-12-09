@@ -1,4 +1,4 @@
-# Developing a C++ based driver for ENS160 Sensor for mbed LPC1768
+# Developing a C++ based driver for ENS160 Sensor compatible with mbed LPC1768
 
 **Team Members: Poorvi Bhaskar, Shreyaa Senthilnathan, Surya Senthilkumar Shanthi, Venkata Siva Krishna Madala**
 
