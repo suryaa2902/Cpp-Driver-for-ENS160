@@ -1,11 +1,13 @@
 #include "ens160_i2c.h"
 
+//Initializes the I2C object with given SDA/SCL pins and sets the device address.
 ENS160::ENS160(PinName sda, PinName scl, uint8_t i2c_device_address)
 :i2c(sda, scl)
 {
     this->i2c_address = i2c_device_address;
 }
 
+//Writes the register address, reads one byte, stores it in data, and returns status.
 int32_t ENS160::readRegisterRegion(uint8_t reg, char *data)
 {
     uint8_t retVal;
@@ -21,6 +23,7 @@ int32_t ENS160::readRegisterRegion(uint8_t reg, char *data)
     return 0;
 }
 
+//Writes the register, reads a specified number of bytes into a temporary buffer, copies to data, and returns status.
 int32_t ENS160::readRegisterRegion(uint8_t reg, char *data, uint8_t length)
 {
     int i;
@@ -44,6 +47,7 @@ int32_t ENS160::readRegisterRegion(uint8_t reg, char *data, uint8_t length)
     return 0;
 }
 
+//Writes an array of bytes to the sensor and returns status.
 int32_t ENS160::writeRegisterRegion(char *data, uint8_t length)
 {
     int32_t retVal;
@@ -54,6 +58,7 @@ int32_t ENS160::writeRegisterRegion(char *data, uint8_t length)
 	return 0;
 }
 
+//Writes a register address followed by one data byte and returns status.
 int32_t ENS160::writeRegisterRegion(uint8_t reg, char data)
 {
     int32_t retVal;
@@ -66,8 +71,10 @@ int32_t ENS160::writeRegisterRegion(uint8_t reg, char data)
 }
 
 //////////////////////////////////////////////////////////////////////////////
-// getUniqueID()
-// Gets the device's unique ID
+//getUniqueID()
+//Gets the device's unique ID
+
+//Reads two bytes from the PART_ID register and combines them into a 16‑bit unique ID.
 uint16_t ENS160::getUniqueID()
 {
     int32_t retVal;
@@ -91,6 +98,7 @@ uint16_t ENS160::getUniqueID()
 //  ---------   -----------------------------
 //  retVal      true if device is connected, false if not connected
 
+//Compares the read unique ID with the expected device ID to verify connection.
 bool ENS160::isConnected()
 {
 	uint16_t uniqueID; 
@@ -100,6 +108,7 @@ bool ENS160::isConnected()
 	return true;
 }
 
+//Initializes the sensor by checking its connection.
 bool ENS160::init()
 {
     return this->isConnected();
@@ -112,6 +121,8 @@ bool ENS160::init()
 //  Parameter    Description
 //  ---------    -----------------------------
 //  val					 The desired operating mode to set. 
+
+//Validates and sets the sensor’s operating mode by writing to its register.
 bool ENS160::setOperatingMode(uint8_t val)
 {
 	int32_t retVal;
@@ -132,6 +143,7 @@ bool ENS160::setOperatingMode(uint8_t val)
 //
 // Gets the current operating mode: Deep Sleep (0x00), Idle (0x01), Standard (0x02), Reset (0xF0)
 
+//Reads and returns the current operating mode or an error code.
 int8_t ENS160::getOperatingMode()
 {
 	int32_t retVal;
@@ -154,6 +166,7 @@ int8_t ENS160::getOperatingMode()
 //  ---------    -----------------------------
 //  val					 The desired configuration settings.
 
+//Writes the given value to the interrupt configuration register.
 bool ENS160::configureInterrupt(uint8_t val)
 {
 	int32_t retVal;
@@ -176,6 +189,7 @@ bool ENS160::configureInterrupt(uint8_t val)
 //  ---------    -----------------------------
 //  enable			 Turns on or off the interrupt. 
 
+//Reads the config register, sets the interrupt enable bit, and writes it back.
 bool ENS160::enableInterrupt(bool enable)
 {
 	int32_t retVal;
@@ -206,6 +220,7 @@ bool ENS160::enableInterrupt(bool enable)
 //  ---------    -----------------------------
 //  activeHigh   Changes active state of interrupt from high to low. 
 
+//Sets the interrupt polarity by shifting the activeHigh value into bit 6.
 bool ENS160::setInterruptPolarity(bool activeHigh)
 {
 	int32_t retVal;
@@ -231,6 +246,7 @@ bool ENS160::setInterruptPolarity(bool activeHigh)
 //
 // Retrieves the polarity of the physical interrupt. 
 
+//Reads the config register, masks bit 6, and returns the interrupt polarity.
 int8_t ENS160::getInterruptPolarity()
 {
 	int32_t retVal;
@@ -255,6 +271,7 @@ int8_t ENS160::getInterruptPolarity()
 //  ---------    -----------------------------
 //  pushPull     Changes the drive of the pin. 
 
+//Sets the interrupt drive type by shifting pushPull into bit 5.
 bool ENS160::setInterruptDrive(bool pushPull)
 {
 	int32_t retVal;
@@ -285,6 +302,7 @@ bool ENS160::setInterruptDrive(bool pushPull)
 //  ---------    -----------------------------
 //  enable			 Self-explanatory: enables or disables data ready on interrupt.
 
+//Routes the data ready signal to the interrupt by setting the appropriate bit.
 bool ENS160::setDataInterrupt(bool enable)
 {
 	int32_t retVal;
@@ -315,6 +333,7 @@ bool ENS160::setDataInterrupt(bool enable)
 //  ---------    -----------------------------
 //  enable			 Self-explanatory: enables or disables general purpos read interrupt.
 
+//Sets the general-purpose register interrupt by shifting enable into bit 3.
 bool ENS160::setGPRInterrupt(bool enable)
 {
 	int32_t retVal;
@@ -341,6 +360,7 @@ bool ENS160::setGPRInterrupt(bool enable)
 //
 // Retrieves the 24 bit application version of the device.
 
+//Reads 3 bytes from the GPR registers to construct a 24‑bit firmware version.
 uint32_t ENS160::getAppVer()
 {
 	int32_t retVal;
@@ -368,6 +388,7 @@ uint32_t ENS160::getAppVer()
 //  ---------    -----------------------------
 //  kelvinConversion	 The given temperature in Kelvin 
 
+//Converts a Kelvin temperature to sensor format and writes it to the temperature input register.
 bool ENS160::setTempCompensation(float tempKelvin)
 {
 	int32_t retVal;
@@ -397,6 +418,7 @@ bool ENS160::setTempCompensation(float tempKelvin)
 //  ---------    -----------------------------
 //  tempCelsius	 The given temperature in Celsius 
 
+//Converts Celsius to Kelvin then sets temperature compensation.
 bool ENS160::setTempCompensationCelsius(float tempCelsius)
 {
 	float kelvinConversion = tempCelsius + 273.15; 
@@ -417,6 +439,7 @@ bool ENS160::setTempCompensationCelsius(float tempCelsius)
 //  ---------    -----------------------------
 //  humidity	   The given relative humidity. 
 
+//Converts relative humidity to sensor format and writes it to the humidity input register.
 bool ENS160::setRHCompensation(uint16_t humidity)
 {
 	int32_t retVal;
@@ -444,6 +467,7 @@ bool ENS160::setRHCompensation(uint16_t humidity)
 //  ---------    -----------------------------
 //  humidity	   The given relative humidity. 
 
+//Converts float humidity to integer and calls setRHCompensation.
 bool ENS160::setRHCompensationFloat(float humidity)
 {
 	uint16_t humidityConversion = (uint16_t)humidity;
@@ -460,6 +484,7 @@ bool ENS160::setRHCompensationFloat(float humidity)
 // This checks the if the NEWDAT bit is high indicating that new data is ready to be read. 
 // The bit is cleared when data has been read from their registers. 
 
+//Checks the NEWDAT bit in the device status register to determine if new data is ready.
 bool ENS160::checkDataStatus()
 {
 	int32_t retVal;
@@ -486,6 +511,7 @@ bool ENS160::checkDataStatus()
 // general purpose read registers. The bit is cleared the relevant registers have been
 // read. 
 
+//Checks the NEWGPR bit to see if general-purpose register data is available.
 bool ENS160::checkGPRStatus()
 {
 	int32_t retVal;
@@ -510,6 +536,7 @@ bool ENS160::checkGPRStatus()
 //
 // This checks the status "flags" of the device (0-3).
 
+//Extracts and returns device status flags from the status register.
 uint8_t ENS160::getFlags()
 {
 	int32_t retVal;
@@ -544,6 +571,7 @@ uint8_t ENS160::getFlags()
 //
 // Checks the bit that indicates if an operation mode is running i.e. the device is not off. 
 
+//Checks bit 7 of the status register to verify if an operation mode is active.
 bool ENS160::checkOperationStatus()
 {
 	int32_t retVal;
@@ -568,6 +596,7 @@ bool ENS160::checkOperationStatus()
 //
 // Checks the bit that indicates if an invalid operating mode has been selected. 
 
+//Checks bit 6 of the status register to determine if an operation error is present.
 bool ENS160::getOperationError()
 {
 	int32_t retVal;
@@ -597,6 +626,7 @@ bool ENS160::getOperationError()
 //
 // 1 - Excellent, 2 - Good, 3 - Moderate, 4 - Poor, 5 - Unhealthy. 
 
+//Reads and masks the AQI register to return the AQI value.
 uint8_t ENS160::getAQI()
 {
 	int32_t retVal;
@@ -617,6 +647,7 @@ uint8_t ENS160::getAQI()
 //
 // This reports the Total Volatile Organic Compounds in ppb (parts per billion)
 
+//Reads two bytes of TVOC data and combines them into a 16‑bit value.
 uint16_t ENS160::getTVOC()
 {
 	int32_t retVal;
@@ -643,6 +674,7 @@ uint16_t ENS160::getTVOC()
 // the datasheet this is a "virtual mirror" of the ethanol-calibrated TVOC register, 
 // which is why they share the same register. 
 
+//Reads ethanol data (mirroring TVOC) and returns it as a 16‑bit value.
 uint16_t ENS160::getETOH()
 {
 	int32_t retVal;
@@ -666,6 +698,7 @@ uint16_t ENS160::getETOH()
 //
 // This reports the CO2 concentration in ppm (parts per million) based on the detected VOCs and hydrogen. 
 
+//Reads CO2 data from the sensor and returns it as a 16‑bit value.
 uint16_t ENS160::getECO2()
 {
 	int32_t retVal;
@@ -689,6 +722,7 @@ uint16_t ENS160::getECO2()
 //
 // This reports the temperature compensation value given to the sensor in Kelvin.
 
+//Reads raw temperature data, converts it using the sensor’s formula, and returns Kelvin.
 float ENS160::getTempKelvin()
 {
 	int32_t retVal;
@@ -716,6 +750,7 @@ float ENS160::getTempKelvin()
 //
 // This reports the temperature compensation value given to the sensor in Celsius.
 
+//Converts the Kelvin temperature to Celsius.
 float ENS160::getTempCelsius()
 {
 	float temperature; 
@@ -731,6 +766,7 @@ float ENS160::getTempCelsius()
 //
 // This reports the relative humidity compensation value given to the sensor.
 
+//Reads two bytes of relative humidity data, applies conversion, and returns the RH value.
 float ENS160::getRH()
 {
 	int32_t retVal;
